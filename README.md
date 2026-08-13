@@ -8,7 +8,7 @@ This project was developed as a portfolio project to demonstrate my ability to b
 
 🔗 **Live Website:** Coming soon
 
-🔗 **GitHub Repository:** [Add your GitHub repository link]
+🔗 **GitHub Repository:** https://github.com/Amrenther/online-store
 
 ---
 
