@@ -6,7 +6,6 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { Prisma } from "@/app/generated/prisma/client";
 import { DELIVERY_CHARGE } from "@/lib/order-constants";
-import { getRazorpay } from "@/lib/razorpay";
 import crypto from "crypto";
 
 const checkoutSchema = z.object({
@@ -19,15 +18,26 @@ const checkoutSchema = z.object({
 });
 
 export type OrderListRow = Prisma.OrderGetPayload<{
-    include: { _count: { select: { items: true } } };
+    include: {
+        _count: {
+            select: {
+                items: true;
+            };
+        };
+    };
 }>;
 
 export type OrderWithItems = Prisma.OrderGetPayload<{
-    include: { items: true };
+    include: {
+        items: true;
+    };
 }>;
 
 export type PlaceOrderResult =
-    | { success: true; orderId: number }
+    | {
+          success: true;
+          orderId: number;
+      }
     | {
           success: false;
           fieldErrors?: z.core.$ZodFlattenedError<
@@ -58,16 +68,23 @@ export async function placeOrder(
     }
 
     const cart = await prisma.cart.findUnique({
-        where: { userId },
+        where: {
+            userId,
+        },
         include: {
             items: {
-                include: { product: true },
+                include: {
+                    product: true,
+                },
             },
         },
     });
 
     if (!cart?.items.length) {
-        return { success: false, error: "Your cart is empty" };
+        return {
+            success: false,
+            error: "Your cart is empty",
+        };
     }
 
     const subtotal = cart.items.reduce(
@@ -77,7 +94,6 @@ export async function placeOrder(
     );
 
     const total = subtotal + DELIVERY_CHARGE;
-
     const shipping = parsed.data;
 
     const order = await prisma.$transaction(
@@ -88,14 +104,17 @@ export async function placeOrder(
                     subtotal,
                     deliveryCharge: DELIVERY_CHARGE,
                     total,
+
                     shippingFullName: shipping.shippingFullName,
                     shippingPhone: shipping.shippingPhone,
                     shippingStreet: shipping.shippingStreet,
                     shippingCity: shipping.shippingCity,
                     shippingState: shipping.shippingState,
                     shippingPincode: shipping.shippingPincode,
+
                     status: "Order Placed",
                     paymentMethod: "COD",
+
                     items: {
                         create: cart.items.map(
                             (item: (typeof cart.items)[number]) => ({
@@ -111,7 +130,9 @@ export async function placeOrder(
             });
 
             await tx.cartItem.deleteMany({
-                where: { cartId: cart.id },
+                where: {
+                    cartId: cart.id,
+                },
             });
 
             return created;
@@ -133,10 +154,18 @@ export async function getMyOrders(): Promise<OrderListRow[]> {
     const userId = await requireUserId();
 
     return prisma.order.findMany({
-        where: { userId },
-        orderBy: { createdAt: "desc" },
+        where: {
+            userId,
+        },
+        orderBy: {
+            createdAt: "desc",
+        },
         include: {
-            _count: { select: { items: true } },
+            _count: {
+                select: {
+                    items: true,
+                },
+            },
         },
     });
 }
@@ -153,7 +182,9 @@ export async function getOrderById(
         },
         include: {
             items: {
-                orderBy: { id: "asc" },
+                orderBy: {
+                    id: "asc",
+                },
             },
         },
     });
@@ -179,6 +210,11 @@ export type CreateRazorpayOrderResult =
 export async function createRazorpayOrder(
     shipping: z.infer<typeof checkoutSchema>
 ): Promise<CreateRazorpayOrderResult> {
+    // Razorpay is loaded only when this function is actually called.
+    // This prevents Razorpay from being initialized while unrelated
+    // pages such as /orders/[id] are being built.
+    const { default: razorpay } = await import("@/lib/razorpay");
+
     const userId = await requireUserId();
 
     const parsed = checkoutSchema.safeParse(shipping);
@@ -191,10 +227,14 @@ export async function createRazorpayOrder(
     }
 
     const cart = await prisma.cart.findUnique({
-        where: { userId },
+        where: {
+            userId,
+        },
         include: {
             items: {
-                include: { product: true },
+                include: {
+                    product: true,
+                },
             },
         },
     });
@@ -214,13 +254,10 @@ export async function createRazorpayOrder(
 
     const total = subtotal + DELIVERY_CHARGE;
 
+    // Razorpay expects the amount in the smallest currency unit.
+    // For INR, this is paise.
     const amountInSmallestUnit = total;
     const currency = "INR";
-
-    // Razorpay is initialized only when the payment flow is actually used.
-    // This prevents Razorpay configuration from being required during
-    // Next.js page generation/build.
-    const razorpay = getRazorpay();
 
     const razorpayOrder = await razorpay.orders.create({
         amount: amountInSmallestUnit,
@@ -241,15 +278,20 @@ export async function createRazorpayOrder(
                     subtotal,
                     deliveryCharge: DELIVERY_CHARGE,
                     total,
+
                     shippingFullName: data.shippingFullName,
                     shippingPhone: data.shippingPhone,
                     shippingStreet: data.shippingStreet,
                     shippingCity: data.shippingCity,
                     shippingState: data.shippingState,
                     shippingPincode: data.shippingPincode,
+
+                    status: "Order Placed",
                     paymentMethod: "Razorpay",
                     paymentStatus: "Pending",
+
                     razorpayOrderId: razorpayOrder.id,
+
                     items: {
                         create: cart.items.map(
                             (item: (typeof cart.items)[number]) => ({
@@ -265,7 +307,9 @@ export async function createRazorpayOrder(
             });
 
             await tx.cartItem.deleteMany({
-                where: { cartId: cart.id },
+                where: {
+                    cartId: cart.id,
+                },
             });
 
             return created;
@@ -275,6 +319,7 @@ export async function createRazorpayOrder(
     revalidatePath("/");
     revalidatePath("/cart");
     revalidatePath("/checkout");
+    revalidatePath("/orders");
 
     return {
         success: true,
