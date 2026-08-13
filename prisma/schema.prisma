@@ -1,0 +1,118 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model HealthCheck {
+  id        Int      @id @default(autoincrement())
+  message   String
+  createdAt DateTime @default(now())
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String?
+  email     String   @unique
+  password  String
+  role      String   @default("user")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  cart      Cart?
+  orders    Order[]
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  products  Product[]
+}
+
+model Product {
+    id        Int      @id @default(autoincrement())
+    name      String
+    slug      String   @unique
+    description String
+    /// Unit price in paise (INR × 100)
+    price     Int
+  image     String
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+  @@index([categoryId])
+}
+
+model Cart {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  user      User    @relation(fields: [userId], references: [id])
+  items     CartItem[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  cartId    Int
+  cart      Cart     @relation(fields: [cartId], references: [id])
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int      @default(1)
+
+  @@unique([cartId, productId])
+}
+
+model Order {
+    id                 Int         @id @default(autoincrement())
+    userId             Int
+    user               User        @relation(fields: [userId], references: [id])
+    /// Paise (INR smallest unit)
+    subtotal           Int
+    deliveryCharge     Int
+    total              Int
+  shippingFullName   String
+  shippingPhone      String
+  shippingStreet     String
+  shippingCity       String
+  shippingState      String
+  shippingPincode    String
+  status             String      @default("Order Placed")
+  paymentMethod      String
+  paymentStatus      String      @default("Pending") // Pending, Paid, Failed
+  razorpayOrderId    String?
+  razorpayPaymentId  String?
+  razorpaySignature  String?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+  items              OrderItem[]
+
+  @@index([userId])
+}
+
+model OrderItem {
+    id          Int     @id @default(autoincrement())
+    orderId     Int
+    order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+    productId   Int
+    product     Product @relation(fields: [productId], references: [id])
+    productName String
+    /// Unit price in paise at time of order
+    unitPrice   Int
+  quantity    Int
+  image       String
+
+  @@index([orderId])
+}
