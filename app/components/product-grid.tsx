@@ -60,7 +60,7 @@ export default function ProductGrid({ initialProducts, initialCursor, categories
     return (
         <section>
             <CategoryFilter categories={categories} activeSlug={activeCategory} onSelect={setActiveCategory} />
-            <div className="grid grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
                 {products.map((product: any) => (
                     <ProductCard key={product.id} product={product} />
                 ))}

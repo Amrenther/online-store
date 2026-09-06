@@ -7,72 +7,82 @@ export default function RegisterPage() {
   const [state, action, pending] = useActionState(signup, undefined);
 
   return (
-    <div className="max-w-md mx-auto mt-10">
-    <div className="card bg-base-100 shadow">
-        <div className="card-body">
-        <h2 className="card-title text-2xl font-bold">Create Account</h2>
-        <form action={action} className="flex flex-col gap-4">
+    <div className="max-w-md mx-auto mt-6 sm:mt-12 w-full">
+      <div className="card bg-base-100 shadow-sm border border-base-200">
+        <div className="card-body p-5 sm:p-8">
+          <h2 className="card-title text-xl sm:text-2xl font-bold mb-1">Create Account</h2>
+          <p className="text-xs sm:text-sm text-base-content/60 mb-3">Join us to start shopping</p>
+          <form action={action} className="flex flex-col gap-4">
             <div>
-            <input
+              <input
                 type="text"
                 name="name"
-                placeholder="Name"
-                className="input w-full"
-            />
-            {state?.errors?.name && (
-                <p className="text-error text-sm mt-1">
-                {state.errors.name[0]}
+                placeholder="Full Name"
+                required
+                className="input input-bordered w-full min-h-[44px]"
+              />
+              {state?.errors?.name && (
+                <p className="text-error text-xs mt-1">
+                  {state.errors.name[0]}
                 </p>
-            )}
+              )}
             </div>
             <div>
-            <input
+              <input
                 type="email"
                 name="email"
-                placeholder="Email"
-                className="input w-full"
-            />
-            {state?.errors?.email && (
-                <p className="text-error text-sm mt-1">
-                {state.errors.email[0]}
+                placeholder="Email address"
+                required
+                className="input input-bordered w-full min-h-[44px]"
+              />
+              {state?.errors?.email && (
+                <p className="text-error text-xs mt-1">
+                  {state.errors.email[0]}
                 </p>
-            )}
+              )}
             </div>
             <div>
-            <input
+              <input
                 type="password"
                 name="password"
                 placeholder="Password"
-                className="input w-full"
-            />
-            {state?.errors?.password && (
-                <p className="text-error text-sm mt-1">
-                {state.errors.password[0]}
+                required
+                className="input input-bordered w-full min-h-[44px]"
+              />
+              {state?.errors?.password && (
+                <p className="text-error text-xs mt-1">
+                  {state.errors.password[0]}
                 </p>
-            )}
+              )}
             </div>
             {state?.errors?.general && (
-            <p className="text-error text-sm">{state.errors.general[0]}</p>
+              <p className="text-error text-xs">{state.errors.general[0]}</p>
             )}
-            {state?.message && <p className="text-success text-sm">{state.message}</p>}
+            {state?.message && <p className="text-success text-xs">{state.message}</p>}
 
             <button
-            type="submit"
-            disabled={pending}
-            className="btn btn-primary w-full"
+              type="submit"
+              disabled={pending}
+              className="btn btn-primary w-full min-h-[44px] text-sm sm:text-base mt-1"
             >
-            {pending ? (
+              {pending ? (
                 <>
-                <span className="loading loading-spinner loading-sm"></span>
-                loading
+                  <span className="loading loading-spinner loading-sm"></span>
+                  Creating account...
                 </>
-            ) : (
+              ) : (
                 "Register"
-            )}
+              )}
             </button>
-        </form>
+            <p className="text-center text-xs sm:text-sm mt-2 text-base-content/70">
+              Already have an account?{" "}
+              <Link href="/login" className="link link-primary font-medium">
+                Log In
+              </Link>
+            </p>
+          </form>
         </div>
-    </div>
+      </div>
     </div>
   );
 }
