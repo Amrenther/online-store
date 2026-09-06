@@ -44,7 +44,7 @@ export default async function TopMenu() {
                             <Link href="/orders" className="btn btn-ghost btn-sm">
                                 Orders
                             </Link>
-                            <span className="text-sm font-medium px-2 max-w-[120px] truncate" title={session?.user?.name || ""}>
+                            <span className="text-sm font-medium px-2 max-w-\[120px\] truncate" title={session?.user?.name || ""}>
                                 {session?.user?.name}
                             </span>
                             <form action={

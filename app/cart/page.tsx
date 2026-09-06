@@ -70,7 +70,7 @@ export default async function CartPage() {
                             {formatInrPaise(total)}
                         </span>
                     </div>
-                    <Link href="/checkout" className="btn btn-primary btn-sm px-5 min-h-[42px]">
+                    <Link href="/checkout" className="btn btn-primary btn-sm px-5 min-h-\[42px\]">
                         Checkout →
                     </Link>
                 </div>

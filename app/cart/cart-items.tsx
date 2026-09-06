@@ -5,7 +5,20 @@ import { updateCartItem, removeFromCart } from "../actions/cart-actions";
 import { formatInrPaise } from "@/lib/format-inr";
 import { useTransition } from "react";
 
-function CartItemRow({ item }: { item: any }) {
+type CartItem = {
+    id: number;
+    quantity: number;
+    product: {
+        name: string;
+        image: string;
+        price: number;
+        category: {
+            name: string;
+        };
+    };
+};
+
+function CartItemRow({ item }: { item: CartItem }) {
     const [ isPending, startTransition ] = useTransition();
 
     function handleQuantityChange(quantity: number) {
@@ -71,18 +84,18 @@ function CartItemRow({ item }: { item: any }) {
                 <div className="flex items-center justify-between sm:justify-end gap-3 pt-2.5 sm:pt-0 border-t border-base-200 sm:border-t-0">
                     <div className="flex items-center border border-base-300 rounded-lg overflow-hidden bg-base-100">
                         <button 
-                            className="btn btn-xs sm:btn-sm btn-ghost rounded-none px-3 text-base font-bold min-h-[36px]"
+                            className="btn btn-xs sm:btn-sm btn-ghost rounded-none px-3 text-base font-bold min-h-\[36px\\]"
                             onClick={() => handleQuantityChange(item.quantity - 1)}
                             disabled={isPending}
                             aria-label="Decrease quantity"
                         >
                             −
                         </button>
-                        <span className="px-3 text-sm font-semibold min-w-[28px] text-center">
+                        <span className="px-3 text-sm font-semibold min-w-\[28px\] text-center">
                             {item.quantity}
                         </span>
                         <button 
-                            className="btn btn-xs sm:btn-sm btn-ghost rounded-none px-3 text-base font-bold min-h-[36px]"
+                            className="btn btn-xs sm:btn-sm btn-ghost rounded-none px-3 text-base font-bold min-h-\[36px\\]"
                             onClick={() => handleQuantityChange(item.quantity + 1)}
                             disabled={isPending}
                             aria-label="Increase quantity"
@@ -119,7 +132,7 @@ function CartItemRow({ item }: { item: any }) {
     )
 }
 
-export default function CartItems( { items }: { items: any[] } ) {
+export default function CartItems( { items }: { items: CartItem[] } ) {
     return (
         <div className="space-y-3">
             {items.map((item) => (

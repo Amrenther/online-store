@@ -4,22 +4,26 @@ import Image from "next/image";
 import { addToCart } from "@/app/actions/cart-actions";
 import { formatInrPaise } from "@/lib/format-inr";
 import { useTransition } from "react";
-import { useRouter } from "next/navigation";
 
-export default function ProductCard({ product }: any) {
+type ProductCardProduct = {
+    id: number;
+    name: string;
+    description: string;
+    price: number;
+    image: string;
+    category: {
+        name: string;
+    };
+};
+
+export default function ProductCard({ product }: { product: ProductCardProduct }) {
 
     const [ isPending, startTransition ] = useTransition();
-    const router = useRouter();
 
     function handleAddToCart() {
-        try {
-            startTransition(async () => {
-                await addToCart(product.id);
-            });
-        } catch (error) {
-            router.push("/login");
-            router.refresh();
-        }
+        startTransition(async () => {
+            await addToCart(product.id);
+        });
     }
 
 
@@ -52,7 +56,7 @@ export default function ProductCard({ product }: any) {
                         {formatInrPaise(product.price)}
                     </span>
                     <button 
-                        className="btn btn-primary btn-xs sm:btn-sm w-full sm:w-auto min-h-[32px]"
+                        className="btn btn-primary btn-xs sm:btn-sm w-full sm:w-auto min-h-\[32px\]"
                         disabled={isPending}
                         onClick={handleAddToCart}
                         aria-label={`Add ${product.name} to cart`}

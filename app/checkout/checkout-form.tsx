@@ -36,7 +36,7 @@ function OrderSummaryContent({
                         key={item.id}
                         className="flex items-center gap-3 sm:gap-4 py-3 first:pt-0"
                     >
-                        <div className="relative h-14 w-14 sm:h-16 sm:w-16 flex-shrink-0 rounded-lg overflow-hidden bg-base-200 border border-base-200">
+                        <div className="relative h-14 w-14 sm:h-16 sm:w-16 shrink-0 rounded-lg overflow-hidden bg-base-200 border border-base-200">
                             <Image
                                 src={item.product.image}
                                 alt={item.product.name}
@@ -415,7 +415,7 @@ export default function CheckoutForm({
 
                         <button
                             type="submit"
-                            className="btn btn-primary w-full min-h-[46px] text-base mt-2"
+                            className="btn btn-primary w-full min-h-11.5 text-base mt-2"
                             disabled={isPending}
                         >
                             {isPending ? (
